@@ -1,15 +1,30 @@
-import { Controller, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Post, Get, Patch, Res, Param  } from "@nestjs/common";
 import { Request, Response } from "express";
-import createUserService from "./user.service";
+import { CreateUserRequest } from "./user.interfaces";
+import { UserRepository } from "./user.repository";
 
 @Controller('/user')
 export class UserController {
+    constructor(private readonly userService: UserRepository) {}
+
     @Post()
-    async createUserController (req: Request, res: Response) {
-        const { email, name, password } = req.body
+    async createUser (@Body() body: CreateUserRequest) {
+        this.userService.create(body)
 
-        const createdUser = await createUserService({email, name, password})
+        return body
+    }
 
-        return res.json(createdUser)
+    @Get()
+    async listUsers () {
+        const users = this.userService.list()
+
+        return users
+    }
+
+    @Get('/:id')
+    async listUserbyId (@Param('id') id: string) {
+        const user = this.userService.listById(id)
+
+        return user
     }
 }
